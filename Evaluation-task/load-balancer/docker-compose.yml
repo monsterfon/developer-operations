@@ -1,0 +1,57 @@
+services:
+  haproxy1:
+    image: haproxy:latest
+    volumes:
+      - "d:/apps/devops/Evaluation-task/load-balancer/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg"
+    ports:
+      - "80:80"
+      - "8404:8404"
+    networks:
+      - loadbalancer
+    depends_on:
+      - nginx1
+      - nginx2
+      - nginx3
+    platform: linux/amd64
+
+  haproxy2:
+    image: haproxy:latest
+    volumes:
+      - "d:/apps/devops/Evaluation-task/load-balancer/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg"
+    ports:
+      - "81:80"
+      - "8405:8404"
+    networks:
+      - loadbalancer
+    depends_on:
+      - nginx1
+      - nginx2
+      - nginx3
+    platform: linux/amd64
+
+  nginx1:
+    image: nginx:latest
+    volumes:
+      - ./nginx/html1:/usr/share/nginx/html
+    networks:
+      - loadbalancer
+    platform: linux/amd64
+
+  nginx2:
+    image: nginx:latest
+    volumes:
+      - ./nginx/html2:/usr/share/nginx/html
+    networks:
+      - loadbalancer
+    platform: linux/amd64
+
+  nginx3:
+    image: nginx:latest
+    volumes:
+      - ./nginx/html3:/usr/share/nginx/html
+    networks:
+      - loadbalancer
+    platform: linux/amd64
+
+networks:
+  loadbalancer:

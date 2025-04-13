@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>Subproject1</id>
+    <version>1.0.0</version>
+    <authors>YourName</authors>
+    <description>A library project for Subproject1.</description>
+    <repository type="git" commit="30ac439d1cdda89d6d526726772881a868af9e17" />
+    <dependencies>
+      <group targetFramework=".NETStandard2.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="D:\apps\devops\Evaluation-task\dev-ops\MySolution\Subproject1\bin\Debug\netstandard2.0\Subproject1.dll" target="lib\netstandard2.0\Subproject1.dll" />
+  </files>
+</package>

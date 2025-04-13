@@ -1,0 +1,78 @@
+image: mcr.microsoft.com/dotnet/sdk:7.0
+
+stages:
+  - build_package1
+  - build_package2
+  - build_solution
+  - test
+  - deploy
+
+build_subproject1:
+  stage: build_package1
+  script:
+    - dotnet build ./dev-ops/MySolution/Subproject1/Subproject1.csproj -c Release
+    - dotnet pack ./dev-ops/MySolution/Subproject1/Subproject1.csproj -c Release -o ./nuget
+    - mkdir -p .nuget
+    - cp ./nuget/*.nupkg .nuget/
+  artifacts:
+    paths:
+      - .nuget/
+
+build_subproject2:
+  stage: build_package2
+  script:
+    - dotnet build ./dev-ops/MySolution/Subproject2/Subproject2.csproj -c Release --source "${CI_PROJECT_DIR}/.nuget" --source https://api.nuget.org/v3/index.json
+    - dotnet pack ./dev-ops/MySolution/Subproject2/Subproject2.csproj -c Release -o ./nuget
+    - mkdir -p .nuget
+    - cp ./nuget/*.nupkg .nuget/
+  dependencies:
+    - build_subproject1
+  artifacts:
+    paths:
+      - .nuget/
+
+build_solution:
+  stage: build_solution
+  script:
+    - dotnet restore ./dev-ops/MySolution/MySolution.sln --source "${CI_PROJECT_DIR}/.nuget" --source https://api.nuget.org/v3/index.json
+    - dotnet build ./dev-ops/MySolution/MySolution.sln --configuration Release --source "${CI_PROJECT_DIR}/.nuget" --source https://api.nuget.org/v3/index.json
+  dependencies:
+    - build_subproject1
+    - build_subproject2
+
+
+test:
+  stage: test
+  script:
+    - dotnet test ./dev-ops/MySolution/MySolution.sln 
+  dependencies:
+    - build_subproject1
+    - build_subproject2
+    - build_solution
+
+
+deploy_nuget:
+  stage: deploy
+  script:
+    - echo "NUGET_SOURCE=${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/nuget/index.json"
+    - dotnet nuget add source "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/nuget/index.json" --name gitlab --username gitlab-ci-token --password ${CI_JOB_TOKEN} --store-password-in-clear-text
+    - for file in .nuget/*.nupkg; do dotnet nuget push "$file" --source gitlab; done
+  dependencies:
+    - build_subproject1
+    - build_subproject2
+  only:
+    - main
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
